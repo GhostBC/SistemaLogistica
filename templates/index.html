@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beleza Ruiva - Logística</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- Tela de Login -->
+  <div id="tela-login" class="tela">
+    <div class="login-box">
+      <h1>Beleza Ruiva - Logística</h1>
+      <p class="subtitulo">Entre com seu e-mail e senha</p>
+      <form id="form-login" onsubmit="return fazerLogin(event)">
+        <input type="email" id="login-email" placeholder="E-mail" required>
+        <input type="password" id="login-senha" placeholder="Senha" required>
+        <button type="submit">Entrar</button>
+      </form>
+      <p id="login-erro" class="erro"></p>
+    </div>
+  </div>
+
+  <!-- Interface principal (após login) -->
+  <div id="app" class="oculto">
+    <header class="cabecalho">
+      <h1 class="cabecalho-titulo">Beleza Ruiva - Logística</h1>
+      <nav class="menu menu-header">
+        <button type="button" data-pagina="dashboard">Dashboard</button>
+        <button type="button" data-pagina="pedidos">Pedidos</button>
+        <button type="button" data-pagina="finalizados">Finalizados</button>
+        <button type="button" data-pagina="embalagens">Embalagens</button>
+        <button type="button" data-pagina="relatorios">Relatórios</button>
+        <button type="button" data-pagina="bling">Bling</button>
+      </nav>
+      <div class="cabecalho-direita">
+        <span class="notificacao-badge" title="Notificações"><span class="notificacao-icone" aria-hidden="true">🔔</span><span id="notificacao-count" class="notificacao-count oculto">0</span></span>
+        <span id="user-nome" class="cabecalho-user"></span>
+        <button type="button" class="btn-sair" onclick="sair()">Sair</button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <aside class="sidebar">
+        <nav class="menu menu-sidebar">
+          <button type="button" data-pagina="dashboard"><span class="nav-icon" aria-hidden="true">📊</span><span>Dashboard</span></button>
+          <button type="button" data-pagina="pedidos"><span class="nav-icon" aria-hidden="true">📋</span><span>Pedidos</span></button>
+          <button type="button" data-pagina="finalizados"><span class="nav-icon" aria-hidden="true">✓</span><span>Finalizados</span></button>
+          <button type="button" data-pagina="embalagens"><span class="nav-icon" aria-hidden="true">📦</span><span>Embalagens</span></button>
+          <button type="button" data-pagina="relatorios"><span class="nav-icon" aria-hidden="true">📈</span><span>Relatórios</span></button>
+          <button type="button" data-pagina="bling"><span class="nav-icon" aria-hidden="true">☁</span><span>Bling</span></button>
+        </nav>
+      </aside>
+
+    <main class="conteudo">
+      <!-- Dashboard -->
+      <section id="pagina-dashboard" class="pagina area-imprimivel">
+        <div class="acoes acoes-impressao">
+          <button type="button" class="btn-secundario" onclick="exportarDashboardExcel()">Exportar Excel</button>
+        </div>
+        <h2 class="pagina-titulo">Dashboard</h2>
+        
+        <!-- Métricas principais -->
+        <div class="dashboard-metricas-principais">
+          <div class="dashboard-card grande verde">
+            <div class="dashboard-card-label">Acumulado Total</div>
+            <div class="dashboard-card-valor" id="dashboard-acumulado-total">-</div>
+            <div class="dashboard-card-subtitulo" id="dashboard-acumulado-sub">Aguardando pedidos do mês</div>
+          </div>
+          <div class="dashboard-card grande amarelo">
+            <div class="dashboard-card-label">Média Diária</div>
+            <div class="dashboard-card-valor" id="dashboard-media-diaria">-</div>
+            <div class="dashboard-card-subtitulo">Ritmo do mês atual</div>
+          </div>
+          <div class="dashboard-card grande vermelho">
+            <div class="dashboard-card-label">Dia Anterior</div>
+            <div class="dashboard-card-valor" id="dashboard-dia-anterior">-</div>
+            <div class="dashboard-card-subtitulo">Finalizados ontem</div>
+          </div>
+          <div class="dashboard-card medio branco">
+            <div class="dashboard-card-label">Meta Pedidos de Hoje</div>
+            <div class="dashboard-card-valor">
+              <input type="number" id="dashboard-ideal-media-input" class="dashboard-input-editavel" min="1" step="1" value="180">
+              <span id="dashboard-ideal-media-display" class="dashboard-valor-display">180</span>
+              <button class="dashboard-btn-editar" id="dashboard-btn-editar-meta" title="Editar meta">✏️</button>
+              <button class="dashboard-btn-salvar" id="dashboard-btn-salvar-meta" title="Salvar meta" style="display: none;">✓</button>
+              <button class="dashboard-btn-cancelar" id="dashboard-btn-cancelar-meta" title="Cancelar" style="display: none;">✕</button>
+            </div>
+          </div>
+          <div class="dashboard-card medio verde-claro">
+            <div class="dashboard-card-label">% Pedidos Finalizados Hoje</div>
+            <div class="dashboard-card-valor" id="dashboard-percentual-meta">-</div>
+            <div class="dashboard-card-subtitulo">Aumente a média para atingir a meta</div>
+          </div>
+        </div>
+
+        <!-- Métricas financeiras e operacionais -->
+        <div class="dashboard-metricas-secundarias">
+          <div class="dashboard-card pequeno card-laranja">
+            <span class="dashboard-card-icone">📋</span>
+            <div class="dashboard-card-label">Pedidos em Aberto</div>
+            <div class="dashboard-card-valor" id="dashboard-pedidos-abertos">-</div>
+            <div class="dashboard-card-subtitulo">Pendentes de finalização</div>
+          </div>
+          <div class="dashboard-card pequeno">
+            <span class="dashboard-card-icone">📦</span>
+            <div class="dashboard-card-label">Embalagens Usadas</div>
+            <div class="dashboard-card-valor" id="dashboard-embalagens-usadas">-</div>
+          </div>
+          <div class="dashboard-card pequeno">
+            <span class="dashboard-card-icone">💰</span>
+            <div class="dashboard-card-label">Custo Embalagem (Total)</div>
+            <div class="dashboard-card-valor" id="dashboard-custo-embalagem-total">-</div>
+            <div class="dashboard-card-subtitulo">Soma de todos os canais no mês</div>
+          </div>
+        </div>
+
+        <!-- Cards por Canal (um card por canal) e Gráficos -->
+        <div class="dashboard-conteudo-inferior">
+          <div class="dashboard-cards-canal-wrapper">
+            <h3>Por Canal <span id="dashboard-por-canal-data" class="dashboard-data-ref"></span></h3>
+            <div id="dashboard-cards-canal" class="dashboard-cards-canal"></div>
+          </div>
+          <div class="dashboard-graficos">
+            <div class="dashboard-grafico-item">
+              <h3>Gráfico por Canal <span id="dashboard-grafico-canal-data" class="dashboard-data-ref"></span></h3>
+              <canvas id="grafico-canal"></canvas>
+            </div>
+            <div class="dashboard-grafico-item">
+              <h3>Pedidos Iniciados/Dia</h3>
+              <canvas id="grafico-diario"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Embalagens utilizadas no mês -->
+        <div class="dashboard-embalagens-secao">
+          <h3>Embalagens Utilizadas <span id="dashboard-embalagens-mes-ref" class="dashboard-data-ref"></span></h3>
+          <div id="dashboard-embalagens-detalhadas" class="tabela-container"></div>
+        </div>
+      </section>
+
+      <!-- Pedidos -->
+      <section id="pagina-pedidos" class="pagina oculto">
+        <h2 id="pedidos-titulo" class="pagina-titulo">Pedidos em aberto</h2>
+        <div class="acoes acoes-com-busca">
+          <span class="busca-wrapper">
+            <span class="busca-icone" aria-hidden="true">🔍</span>
+            <input type="text" id="busca-pedidos" class="input-busca" placeholder="Buscar por número, marketplace, transportadora ou rastreio...">
+          </span>
+          <button type="button" class="btn-secundario" onclick="limparFiltrosPedidos()" title="Limpar busca e filtro por loja">Limpar filtros</button>
+          <button type="button" class="btn-primario" onclick="abrirModalAdicionarPedido()">Adicionar Pedido Manual</button>
+          <button type="button" class="btn-primario" onclick="sincronizarPedidos()">Sincronizar com Bling</button>
+          <button type="button" class="btn-primario" onclick="carregarPedidos()">Atualizar lista</button>
+        </div>
+        <div class="pedidos-metricas">
+          <div class="pedido-metrica-card">
+            <span class="pedido-metrica-icone">📄</span>
+            <div>
+              <span class="pedido-metrica-valor" id="pedidos-metrica-total">—</span>
+              <span class="pedido-metrica-label">pedidos em aberto</span>
+            </div>
+          </div>
+        </div>
+        <div id="pedidos-lista" class="tabela-container"></div>
+        <p id="pedidos-info-registros" class="info-registros oculto"></p>
+        <div id="paginacao-pedidos"></div>
+      </section>
+
+      <!-- Finalizados -->
+      <section id="pagina-finalizados" class="pagina oculto">
+        <h2 class="pagina-titulo">Pedidos finalizados</h2>
+        <div class="acoes">
+          <input type="text" id="busca-finalizados" placeholder="Buscar por número, marketplace, transportadora ou rastreio..." style="flex: 1; padding: 0.5rem; margin-right: 0.5rem;">
+          <button type="button" class="btn-secundario" onclick="exportarFinalizadosExcel()" title="Exporta a lista (respeitando filtro por loja e busca)">Exportar para Excel</button>
+          <button type="button" id="btn-obter-rastreio-lote" class="btn-secundario" onclick="obterRastreioEmLote()">Obter rastreio em lote</button>
+          <button type="button" onclick="carregarFinalizados()">Atualizar lista</button>
+          <input type="file" id="planilha-mandae-input" accept=".csv,.xlsx,.xls" style="display: none;">
+          <button type="button" class="btn-secundario" onclick="document.getElementById('planilha-mandae-input').click();">Enviar planilha Mandaê</button>
+        </div>
+        <p id="planilha-mandae-aviso" class="aviso oculto" style="margin-top: 0.5rem;"></p>
+        <div id="finalizados-lista" class="tabela-container"></div>
+        <div id="paginacao-finalizados"></div>
+      </section>
+
+      <!-- Embalagens -->
+      <section id="pagina-embalagens" class="pagina oculto">
+        <h2 class="pagina-titulo">Embalagens</h2>
+        <div class="acoes">
+          <button type="button" onclick="abrirModalEmbalagem()">Nova embalagem</button>
+          <button type="button" onclick="carregarEmbalagens()">Atualizar lista</button>
+        </div>
+        <div id="embalagens-lista" class="tabela-container"></div>
+      </section>
+
+      <!-- Relatórios -->
+      <section id="pagina-relatorios" class="pagina oculto area-imprimivel">
+        <h2 class="pagina-titulo">Relatórios</h2>
+        <div class="relatorio-filtros">
+          <div class="form-inline" style="margin-bottom: 1rem;">
+            <label><input type="radio" name="tipo-relatorio" value="diario" checked onchange="alternarTipoRelatorio()"> Relatório Diário</label>
+            <label style="margin-left: 1rem;"><input type="radio" name="tipo-relatorio" value="periodo" onchange="alternarTipoRelatorio()"> Relatório por Período</label>
+            <label style="margin-left: 1rem;"><input type="radio" name="tipo-relatorio" value="por-canal" onchange="alternarTipoRelatorio()"> Por Canal (e consumo de caixa)</label>
+          </div>
+          <div id="relatorio-diario-opcoes" class="form-inline acoes">
+            <label>Data:</label>
+            <input type="date" id="relatorio-data">
+            <button type="button" class="btn-primario" onclick="gerarRelatorio()">Ver relatório</button>
+            <button type="button" class="btn-secundario" onclick="baixarExcel()">Baixar Excel</button>
+            <button type="button" class="btn-secundario no-impressao" onclick="imprimirRelatorios()" style="margin-left: 0.5rem;">🖨️ Imprimir</button>
+          </div>
+          <div id="relatorio-periodo-opcoes" class="form-inline acoes" style="display: none;">
+            <label>Data Início:</label>
+            <input type="date" id="relatorio-data-inicio">
+            <label style="margin-left: 1rem;">Data Fim:</label>
+            <input type="date" id="relatorio-data-fim">
+            <button type="button" class="btn-primario" onclick="gerarRelatorioPeriodo()">Ver relatório</button>
+            <button type="button" class="btn-secundario" onclick="baixarExcelPeriodo()">Baixar Excel</button>
+            <button type="button" class="btn-secundario no-impressao" onclick="imprimirRelatorios()" style="margin-left: 0.5rem;">🖨️ Imprimir</button>
+          </div>
+          <div id="relatorio-por-canal-opcoes" class="form-inline acoes" style="display: none;">
+            <label>Data Início:</label>
+            <input type="date" id="relatorio-por-canal-inicio">
+            <label style="margin-left: 1rem;">Data Fim:</label>
+            <input type="date" id="relatorio-por-canal-fim">
+            <button type="button" class="btn-primario" onclick="gerarRelatorioPorCanal()">Ver relatório por canal</button>
+            <button type="button" class="btn-secundario" onclick="exportarRelatorioPorCanalExcel()">Exportar Excel</button>
+          </div>
+        </div>
+        <div id="relatorio-conteudo" class="relatorio-conteudo"></div>
+      </section>
+
+      <!-- Bling -->
+      <section id="pagina-bling" class="pagina oculto">
+        <h2 class="pagina-titulo">Integração Bling</h2>
+        <div id="bling-status" class="status-box"></div>
+        <p><a href="/api/bling/authorize" target="_blank" class="btn-link">Conectar / Autorizar no Bling</a></p>
+        <div class="acoes" style="margin-top: 1.5rem;">
+          <button type="button" class="btn-secundario" onclick="limparDados()">Limpar dados (desenvolvimento)</button>
+        </div>
+        <p class="subtitulo-modal" style="margin-top: 0.5rem;">Remove todos os pedidos e custos do banco para sincronizar novamente com o Bling.</p>
+      </section>
+    </main>
+    </div><!-- .app-body -->
+  </div>
+
+  <!-- Modal criar/editar embalagem -->
+  <div id="modal-embalagem" class="modal oculto">
+    <div class="modal-conteudo modal-embalagem-largura">
+      <h3 id="modal-embalagem-titulo">Nova embalagem</h3>
+      <input type="hidden" id="embalagem-id" value="">
+      <label>Nome:</label>
+      <input type="text" id="embalagem-nome" placeholder="Ex: Caixa P">
+      <label>Custo (R$):</label>
+      <input type="number" id="embalagem-custo" step="0.01" min="0" placeholder="0,00">
+      <label>Altura (cm):</label>
+      <input type="number" id="embalagem-altura" step="0.1" min="0" placeholder="10">
+      <label>Largura (cm):</label>
+      <input type="number" id="embalagem-largura" step="0.1" min="0" placeholder="10">
+      <label>Comprimento (cm):</label>
+      <input type="number" id="embalagem-comprimento" step="0.1" min="0" placeholder="10">
+      <label>Peso (kg) – opcional:</label>
+      <input type="number" id="embalagem-peso" step="0.01" min="0" placeholder="">
+      <label>Estoque (unidades):</label>
+      <input type="number" id="embalagem-estoque" step="1" min="0" placeholder="0">
+      <div class="modal-botoes">
+        <button type="button" onclick="fecharModalEmbalagem()">Cancelar</button>
+        <button type="button" class="btn-primario" onclick="salvarEmbalagem()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal finalizar pedido (dados do pedido + finalização em um só) -->
+  <div id="modal-finalizar" class="modal oculto">
+    <div class="modal-conteudo modal-embalagem-largura">
+      <h3>Finalizar pedido <span id="modal-pedido-num"></span></h3>
+      <p class="subtitulo-modal">Preencha os dados do pedido e escolha a embalagem para finalizar.</p>
+      <div class="acoes" style="margin-bottom: 1rem;">
+        <button type="button" class="btn-secundario" onclick="obterInformacoesBling()">Obter informações do pedido</button>
+      </div>
+      <label>Marketplace (loja):</label>
+      <input type="text" id="modal-finalizar-marketplace" placeholder="Nome do marketplace ou loja">
+      <label>Frete pago pelo cliente (R$):</label>
+      <input type="number" id="modal-finalizar-frete" step="0.01" min="0" placeholder="0,00">
+      <label>Peso do pedido (kg):</label>
+      <input type="number" id="modal-finalizar-peso" step="0.01" min="0" placeholder="0,00">
+      <label>Serviço / Transportadora:</label>
+      <input type="text" id="modal-finalizar-transportadora" placeholder="Nome da transportadora">
+      <label>Código de rastreio:</label>
+      <input type="text" id="modal-finalizar-tracking" placeholder="Código de rastreamento">
+      <label>Embalagens:</label>
+      <div id="embalagens-container">
+        <div class="embalagem-item">
+          <select class="select-embalagem-item" data-index="0">
+            <option value="">Selecione uma embalagem</option>
+          </select>
+          <input type="number" class="quantidade-embalagem-item" data-index="0" min="1" value="1" step="1" placeholder="Qtd" style="width: 80px; margin-left: 0.5rem;">
+          <button type="button" class="btn-remover-embalagem" data-index="0" onclick="removerEmbalagemItem(0)" style="display: none;">✕</button>
+        </div>
+      </div>
+      <button type="button" onclick="adicionarEmbalagemItem()" style="margin-top: 0.5rem; font-size: 0.9rem;">+ Adicionar outra embalagem</button>
+      <label style="margin-top: 1rem;">Custo Mandaê (R$) – opcional (obrigatório para Tray):</label>
+      <input type="number" id="modal-finalizar-custo-mandae" step="0.01" min="0" placeholder="Gasto real do frete">
+      <label>Observações:</label>
+      <textarea id="modal-observacoes" rows="2"></textarea>
+      <p id="modal-finalizar-aviso" class="aviso oculto"></p>
+      <div class="modal-botoes">
+        <button type="button" onclick="fecharModal()">Cancelar</button>
+        <button type="button" class="btn-primario" onclick="confirmarFinalizar()">Finalizar Pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal adicionar pedido manual: primeiro informar ID do Bling, depois buscar dados -->
+  <div id="modal-adicionar-pedido" class="modal oculto">
+    <div class="modal-conteudo modal-embalagem-largura">
+      <h3>Adicionar Pedido Manual</h3>
+      <p class="subtitulo-modal">Informe o ID do pedido no Bling. O sistema buscará os dados e preencherá o formulário.</p>
+      <div id="modal-adicionar-step1">
+        <label>ID do pedido (Bling):</label>
+        <input type="text" id="modal-adicionar-id-bling" placeholder="Ex.: 123456789">
+        <p id="modal-adicionar-aviso" class="aviso oculto"></p>
+        <div class="modal-botoes">
+          <button type="button" onclick="fecharModalAdicionar()">Cancelar</button>
+          <button type="button" class="btn-primario" onclick="buscarDadosBlingAdicionar()">Buscar dados no Bling</button>
+        </div>
+      </div>
+      <div id="modal-adicionar-step2" style="display: none;">
+        <label>Número do Pedido:</label>
+        <input type="text" id="modal-adicionar-numero" placeholder="Preenchido pelo Bling" readonly>
+        <label>Marketplace (loja):</label>
+        <input type="text" id="modal-adicionar-marketplace" placeholder="Nome do marketplace ou loja">
+        <label>Frete pago pelo cliente (R$):</label>
+        <input type="number" id="modal-adicionar-frete" step="0.01" min="0" placeholder="0,00">
+        <p id="modal-adicionar-aviso2" class="aviso oculto"></p>
+        <div class="modal-botoes">
+          <button type="button" onclick="voltarModalAdicionarStep1()">Voltar</button>
+          <button type="button" class="btn-primario" onclick="confirmarAdicionarPedido()">Adicionar Pedido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal editar pedido finalizado -->
+  <div id="modal-editar-finalizado" class="modal oculto">
+    <div class="modal-conteudo modal-embalagem-largura">
+      <h3>Editar pedido finalizado <span id="modal-editar-finalizado-num"></span></h3>
+      <input type="hidden" id="modal-editar-finalizado-numero" value="">
+      <div class="acoes" style="margin-bottom: 1rem;">
+        <button type="button" class="btn-secundario" onclick="sincronizarRastreioFinalizado()">Sincronizar código de rastreio</button>
+      </div>
+      <label>Marketplace (loja):</label>
+      <input type="text" id="modal-editar-marketplace" placeholder="Nome do marketplace ou loja">
+      <label>Frete pago pelo cliente (R$):</label>
+      <input type="number" id="modal-editar-frete" step="0.01" min="0" placeholder="0,00">
+      <label>Peso do pedido (kg):</label>
+      <input type="number" id="modal-editar-peso" step="0.01" min="0" placeholder="0,00">
+      <label>Serviço / Transportadora:</label>
+      <input type="text" id="modal-editar-transportadora" placeholder="Nome da transportadora">
+      <label>Código de rastreio:</label>
+      <input type="text" id="modal-editar-tracking" placeholder="Código de rastreamento">
+      <label>Custo Mandaê (R$) – opcional:</label>
+      <input type="number" id="modal-editar-custo-mandae" step="0.01" min="0" placeholder="Gasto real do frete">
+      <label>Embalagens:</label>
+      <div id="modal-editar-embalagens-container">
+        <div class="embalagem-item">
+          <select class="select-embalagem-item-editar" data-index="0">
+            <option value="">Selecione uma embalagem</option>
+          </select>
+          <input type="number" class="quantidade-embalagem-item-editar" data-index="0" min="1" value="1" step="1" placeholder="Qtd" style="width: 80px; margin-left: 0.5rem;">
+          <button type="button" class="btn-remover-embalagem-editar" data-index="0" onclick="removerEmbalagemItemEditar(0)" style="display: none;">✕</button>
+        </div>
+      </div>
+      <button type="button" onclick="adicionarEmbalagemItemEditar()" style="margin-top: 0.5rem; font-size: 0.9rem;">+ Adicionar outra embalagem</button>
+      <p id="modal-editar-finalizado-aviso" class="aviso oculto"></p>
+      <div class="modal-botoes">
+        <button type="button" onclick="fecharModalEditarFinalizado()">Cancelar</button>
+        <button type="button" class="btn-primario" onclick="salvarEditarFinalizado()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal visualização / preenchimento manual do pedido -->
+  <div id="modal-visualizar-pedido" class="modal oculto">
+    <div class="modal-conteudo modal-embalagem-largura">
+      <h3>Dados do pedido <span id="modal-visualizar-num"></span></h3>
+      <p class="subtitulo-modal">Preencha manualmente os dados abaixo. Salve antes de finalizar.</p>
+      <input type="hidden" id="modal-visualizar-numero" value="">
+      <label>Marketplace (loja):</label>
+      <select id="modal-visualizar-marketplace">
+        <option value="site">Selecione...</option>
+      </select>
+      <label>Frete pago pelo cliente (R$):</label>
+      <input type="number" id="modal-visualizar-frete" step="0.01" min="0" placeholder="0,00">
+      <label>Serviço / Transportadora:</label>
+      <select id="modal-visualizar-transportadora">
+        <option value="">Selecione...</option>
+        <option value="Mandaê - Econômico">Mandaê - Econômico</option>
+        <option value="Mandaê - Rápido">Mandaê - Rápido</option>
+        <option value="Mercado Livre">Mercado Livre</option>
+        <option value="Logística Shopee">Logística Shopee</option>
+        <option value="Tik tok">Tik tok</option>
+        <option value="Shein">Shein</option>
+        <option value="Correios">Correios</option>
+      </select>
+      <label>Código de rastreio:</label>
+      <input type="text" id="modal-visualizar-tracking" placeholder="Código de rastreamento">
+      <p id="modal-visualizar-aviso" class="aviso oculto"></p>
+      <div class="modal-botoes">
+        <button type="button" onclick="fecharModalVisualizar()">Fechar</button>
+        <button type="button" class="btn-primario" onclick="salvarDadosPedido()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

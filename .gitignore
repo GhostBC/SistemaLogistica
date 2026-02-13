@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# Ambiente
+.env
+
+# Banco
+*.db
+database/logistica.db
+
+# Tokens OAuth (não versionar)
+data/
+data/bling_tokens.json
+
+# Logs
+logs/*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testes
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build
+dist/
+build/
+*.egg-info/
