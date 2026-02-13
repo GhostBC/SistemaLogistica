@@ -87,7 +87,7 @@ def init_db(app):
             status='ativo'
         )
         db.session.add(lucas)
-    lucas.set_password('@UEcqiXmics9531')
+    # Set Password
     lucas.categoria = 'ADMIN'
     lucas.status = 'ativo'
 
@@ -101,7 +101,7 @@ def init_db(app):
             status='ativo'
         )
         db.session.add(paulo)
-    paulo.set_password('Belezaruiva@972890')
+    # Set password
     paulo.categoria = 'ADMIN'
     paulo.status = 'ativo'
 
